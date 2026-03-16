@@ -40,7 +40,7 @@ Create a `.env` file in the project root:
 ```bash
 PORT=8787
 GEMINI_API_KEY=your_gemini_api_key_here
-GEMINI_MODEL=gemini-1.5-flash
+GEMINI_MODEL=gemini-2.0-flash
 VITE_API_BASE_URL=http://localhost:8787
 ```
 
