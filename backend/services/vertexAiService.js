@@ -11,6 +11,7 @@ const DEFAULT_TEXT_MODEL = 'gemini-2.5-flash';
 const DEFAULT_IMAGE_MODEL = 'gemini-2.5-flash-image';
 
 let cachedVertexClient;
+let cachedVertexConfig;
 
 
 const ensureVertexSdk = () => {
@@ -33,21 +34,75 @@ const getVertexConfig = () => {
 
   const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
   if (credentialsPath) {
-    process.env.GOOGLE_APPLICATION_CREDENTIALS = path.resolve(process.cwd(), credentialsPath);
+    const resolvedCredentialsPath = path.isAbsolute(credentialsPath)
+      ? credentialsPath
+      : path.resolve(__dirname, '..', credentialsPath);
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = resolvedCredentialsPath;
   }
 
-  return { project, location };
+  const endpointHost = location === 'global'
+    ? 'aiplatform.googleapis.com'
+    : `${location}-aiplatform.googleapis.com`;
+
+  return {
+    project,
+    location,
+    endpoint: `https://${endpointHost}`,
+    credentialsPath: process.env.GOOGLE_APPLICATION_CREDENTIALS || null,
+  };
 };
 
 const getVertexClient = () => {
   if (!cachedVertexClient) {
     ensureVertexSdk();
     const config = getVertexConfig();
-    cachedVertexClient = new VertexAI(config);
+    cachedVertexConfig = config;
+    cachedVertexClient = new VertexAI({
+      project: config.project,
+      location: config.location,
+    });
   }
 
   return cachedVertexClient;
 };
+
+const parseErrorDetails = (rawText) => {
+  if (!rawText) return null;
+
+  try {
+    return JSON.parse(rawText);
+  } catch (_error) {
+    return null;
+  }
+};
+
+const extractErrorContext = async (error) => {
+  const responseLike = error?.response || error?.cause?.response;
+  const statusCode =
+    responseLike?.status || error?.status || error?.statusCode || error?.code || null;
+
+  let rawBody = null;
+  if (typeof responseLike?.text === 'function') {
+    try {
+      rawBody = await responseLike.text();
+    } catch (_err) {
+      rawBody = null;
+    }
+  }
+
+  if (!rawBody && typeof error?.body === 'string') {
+    rawBody = error.body;
+  }
+
+  const parsedDetails = parseErrorDetails(rawBody) || error?.details || null;
+  return {
+    statusCode,
+    rawBody,
+    parsedDetails,
+  };
+};
+
+const sanitizeJsonText = (text) => text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/, '').trim();
 
 const readTextResponse = (response) => {
   const text = response?.candidates?.[0]?.content?.parts
@@ -64,9 +119,11 @@ const readTextResponse = (response) => {
 };
 
 const callVertexText = async (prompt, modelName) => {
+  const client = getVertexClient();
+  const model = client.getGenerativeModel({ model: modelName });
+  const endpoint = `${cachedVertexConfig.endpoint}/v1/projects/${cachedVertexConfig.project}/locations/${cachedVertexConfig.location}/publishers/google/models/${modelName}:generateContent`;
+
   try {
-    const client = getVertexClient();
-    const model = client.getGenerativeModel({ model: modelName });
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: { temperature: 0.8 },
@@ -74,8 +131,23 @@ const callVertexText = async (prompt, modelName) => {
 
     return readTextResponse(result.response);
   } catch (error) {
+    const errorContext = await extractErrorContext(error);
+    console.error('[vertex-ai] Text generation failed', {
+      endpoint,
+      modelName,
+      statusCode: errorContext.statusCode,
+      rawResponseText: errorContext.rawBody,
+      parsedErrorDetails: errorContext.parsedDetails,
+      credentialsPath: cachedVertexConfig?.credentialsPath || null,
+      reason: error?.message || String(error),
+    });
+
     throw new HttpError(502, `Failed to generate text with Vertex AI model (${modelName}).`, {
       provider: 'vertex-ai',
+      endpoint,
+      statusCode: errorContext.statusCode,
+      rawResponseText: errorContext.rawBody,
+      parsedErrorDetails: errorContext.parsedDetails,
       reason: error?.message || String(error),
     });
   }
@@ -125,11 +197,21 @@ Inputs:
 - Industry: ${industry}
 - Objective: ${objective}
 
-Output as a numbered list.
-Each idea should include:
-- Title
-- Why it works
-- Suggested format/channel`;
+Return ONLY valid JSON with this exact shape:
+{
+  "ideas": [
+    {
+      "title": "...",
+      "whyItWorks": "...",
+      "suggestedChannel": "..."
+    }
+  ]
+}
+
+Rules:
+- Do not include markdown fences.
+- Do not include commentary outside JSON.
+- Return exactly 10 items in ideas.`;
 
 const buildImageConceptPrompt = ({ prompt, brandName, platform }) => `You are a creative director for ${brandName}.
 Create a strong social image concept for ${platform}.
@@ -157,7 +239,19 @@ const generateEmail = async (input) => {
 
 const generateIdeas = async (input) => {
   const modelName = process.env.VERTEX_TEXT_MODEL || DEFAULT_TEXT_MODEL;
-  return callVertexText(buildIdeasPrompt(input), modelName);
+  const ideasText = await callVertexText(buildIdeasPrompt(input), modelName);
+  const normalizedText = sanitizeJsonText(ideasText);
+
+  try {
+    const parsed = JSON.parse(normalizedText);
+    return JSON.stringify(parsed, null, 2);
+  } catch (error) {
+    throw new HttpError(502, 'Vertex AI returned invalid JSON for ideas generation.', {
+      provider: 'vertex-ai',
+      reason: error?.message || String(error),
+      rawResponseText: ideasText,
+    });
+  }
 };
 
 const generateImageConcept = async (input) => {
