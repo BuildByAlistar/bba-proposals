@@ -1,30 +1,70 @@
-import { Briefcase, BookOpen, ImageIcon, Mail, Video } from 'lucide-react';
-import { Panel, StatCard, ToolCard } from '../components/Cards';
+import { NavLink } from 'react-router-dom';
+import { Briefcase, BookOpen, Mail, Sparkles } from 'lucide-react';
+import { Panel, StatCard } from '../components/Cards';
 
-const tools = [
-  { icon: Briefcase, title: 'Proposal Builder', description: 'Generate polished proposals with your brand voice and pricing blocks.' },
-  { icon: Mail, title: 'Sales Emails', description: 'Write outbound sequences, follow-ups, and objection handling emails.' },
-  { icon: ImageIcon, title: 'Ad Creatives', description: 'Draft static ad concepts with copy angles and creative direction.' },
-  { icon: Video, title: 'Video Scripts', description: 'Map hooks, beats, and CTA moments for short-form and VSL content.' },
-  { icon: BookOpen, title: 'Content Ideas', description: 'Build high-leverage content calendars from ICP pain points.' },
+const mvpTools = [
+  {
+    icon: Briefcase,
+    title: 'Proposal Builder',
+    description: 'Generate polished proposals from client notes and export branded PDFs.',
+    to: '/proposal-builder',
+  },
+  {
+    icon: Mail,
+    title: 'Email Draft Generator',
+    description: 'Draft outreach and follow-up emails in your agency voice.',
+    to: '/email-generator',
+  },
+  {
+    icon: BookOpen,
+    title: 'Ideas Generator',
+    description: 'Produce campaign ideas and content drafts for growth channels.',
+    to: '/ideas-generator',
+  },
 ];
 
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Active Proposals" value="24" delta="+8% this week" />
-        <StatCard label="Email Win Rate" value="41%" delta="+3.2% from last cycle" />
-        <StatCard label="Campaign Drafts" value="17" delta="+5 new today" />
-        <StatCard label="Published Ideas" value="68" delta="+11 this month" />
+        <StatCard label="Internal Mode" value="Private" delta="Only accessible to BuildByAlistar" />
+        <StatCard label="MVP Modules" value="5" delta="Dashboard + Proposal + Email + Ideas + PDF" />
+        <StatCard label="AI Provider" value="Gemini" delta="Text + image + video endpoints ready" />
+        <StatCard label="PDF Engine" value="Puppeteer" delta="Branded proposal export" />
       </section>
 
-      <Panel title="Agency Toolkit" subtitle="Everything your team needs to move from strategy to execution.">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {tools.map((tool) => (
-            <ToolCard key={tool.title} {...tool} />
+      <Panel title="Agency OS MVP" subtitle="One dashboard to control your internal proposal workflow.">
+        <div className="grid gap-4 md:grid-cols-3">
+          {mvpTools.map((tool) => (
+            <NavLink
+              key={tool.title}
+              to={tool.to}
+              className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 transition hover:border-violet-400/50"
+            >
+              <div className="mb-4 inline-flex rounded-lg border border-slate-700 bg-slate-950 p-2.5">
+                <tool.icon className="h-5 w-5 text-violet-300" />
+              </div>
+              <h3 className="text-base font-semibold text-slate-100">{tool.title}</h3>
+              <p className="mt-1 text-sm text-slate-400">{tool.description}</p>
+            </NavLink>
           ))}
         </div>
+      </Panel>
+
+      <Panel title="What ships now" subtitle="Stable MVP first. Advanced media features are scaffolded.">
+        <ul className="space-y-2 text-sm text-slate-300">
+          {[
+            'Proposal generation endpoint + builder UI',
+            'Email draft generation endpoint + UI',
+            'Ideas generation endpoint + UI',
+            'PDF export endpoint with Puppeteer',
+            'Image/video script/video endpoints scaffolded for expansion',
+          ].map((item) => (
+            <li key={item} className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-violet-300" /> {item}
+            </li>
+          ))}
+        </ul>
       </Panel>
     </div>
   );
