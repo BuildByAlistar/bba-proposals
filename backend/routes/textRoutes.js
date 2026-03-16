@@ -3,7 +3,7 @@ const {
   generateProposal,
   generateEmail,
   generateIdeas,
-} = require('../services/geminiService');
+} = require('../services/vertexAiService');
 const { asyncHandler } = require('../utils/asyncHandler');
 const { requireFields } = require('../utils/validators');
 

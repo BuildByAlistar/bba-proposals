@@ -2,7 +2,7 @@ const express = require('express');
 const {
   generateImageConcept,
   generateImage,
-} = require('../services/geminiService');
+} = require('../services/vertexAiService');
 const { asyncHandler } = require('../utils/asyncHandler');
 const { requireFields } = require('../utils/validators');
 
