@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "buildbystar-a109d"
+  },
+  "targets": {
+    "buildbystar-a109d": {
+      "hosting": {
+        "proposals": [
+          "buildbyalistar-proposals"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
