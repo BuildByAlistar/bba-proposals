@@ -115,22 +115,22 @@ Return:
 - CTA overlay text suggestion`;
 
 const generateProposal = async (input) => {
-  const modelName = process.env.GEMINI_TEXT_MODEL || 'gemini-1.5-flash';
+  const modelName = process.env.GEMINI_TEXT_MODEL || 'gemini-2.0-flash';
   return callGeminiText(buildProposalPrompt(input), modelName);
 };
 
 const generateEmail = async (input) => {
-  const modelName = process.env.GEMINI_TEXT_MODEL || 'gemini-1.5-flash';
+  const modelName = process.env.GEMINI_TEXT_MODEL || 'gemini-2.0-flash';
   return callGeminiText(buildEmailPrompt(input), modelName);
 };
 
 const generateIdeas = async (input) => {
-  const modelName = process.env.GEMINI_TEXT_MODEL || 'gemini-1.5-flash';
+  const modelName = process.env.GEMINI_TEXT_MODEL || 'gemini-2.0-flash';
   return callGeminiText(buildIdeasPrompt(input), modelName);
 };
 
 const generateImageConcept = async (input) => {
-  const modelName = process.env.GEMINI_TEXT_MODEL || 'gemini-1.5-flash';
+  const modelName = process.env.GEMINI_TEXT_MODEL || 'gemini-2.0-flash';
   return callGeminiText(buildImageConceptPrompt(input), modelName);
 };
 

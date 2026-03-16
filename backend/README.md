@@ -38,8 +38,8 @@ Required variables:
 ```env
 PORT=5000
 GEMINI_API_KEY=
-GEMINI_TEXT_MODEL=gemini-1.5-flash
-GEMINI_IMAGE_MODEL=
+GEMINI_TEXT_MODEL=gemini-2.0-flash
+GEMINI_IMAGE_MODEL=gemini-2.0-flash-preview-image-generation
 ADOBE_CLIENT_ID=
 ADOBE_CLIENT_SECRET=
 ADOBE_ORG_ID=

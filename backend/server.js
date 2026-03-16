@@ -1,13 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 
 const textRoutes = require('./routes/textRoutes');
 const imageRoutes = require('./routes/imageRoutes');
 const pdfRoutes = require('./routes/pdfRoutes');
 const { notFoundHandler, errorHandler } = require('./utils/errorHandlers');
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;

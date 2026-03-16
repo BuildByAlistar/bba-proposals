@@ -17,7 +17,7 @@ async function generateText(prompt) {
     throw new Error('Missing GEMINI_API_KEY environment variable.');
   }
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: process.env.GEMINI_TEXT_MODEL || 'gemini-2.0-flash' });
   const result = await model.generateContent(prompt);
   const response = await result.response;
   return response.text();
