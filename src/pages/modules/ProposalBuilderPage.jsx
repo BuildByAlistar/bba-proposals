@@ -1,6 +1,52 @@
 import GeneratorPanel from '../../components/forms/GeneratorPanel';
 import { api } from '../../services/api';
 
+const proposalSectionHeadings = [
+  'Client Summary',
+  'Problem',
+  'Solution',
+  'Scope',
+  'Timeline',
+  'Pricing',
+  'Next Steps',
+];
+
+const sectionKeyMap = {
+  'Client Summary': 'clientSummary',
+  Problem: 'problem',
+  Solution: 'solution',
+  Scope: 'scope',
+  Timeline: 'timeline',
+  Pricing: 'pricing',
+  'Next Steps': 'nextSteps',
+};
+
+function parseProposalSections(markdown) {
+  const lines = markdown.split('\n');
+  const sections = {};
+  let current = null;
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    const heading = proposalSectionHeadings.find((name) => line === `## ${name}`);
+
+    if (heading) {
+      current = heading;
+      sections[sectionKeyMap[heading]] = '';
+      continue;
+    }
+
+    if (!current) {
+      continue;
+    }
+
+    const key = sectionKeyMap[current];
+    sections[key] = `${sections[key]}${sections[key] ? '\n' : ''}${rawLine}`.trimEnd();
+  }
+
+  return sections;
+}
+
 const fields = [
   { name: 'clientName', label: 'Client Name', required: true },
   { name: 'offer', label: 'Offer / Service', required: true },
@@ -20,12 +66,10 @@ export default function ProposalBuilderPage() {
       disabled={loading || !output}
       onClick={async () => {
         const blob = await api.exportPdf({
+          brandName: 'BuildByAlistar Agency OS',
           title: `${values.clientName} Proposal`,
           clientName: values.clientName,
-          summary: output,
-          scope: values.notes,
-          timeline: 'Define milestones after alignment call.',
-          investment: 'To be finalized based on selected package.',
+          ...parseProposalSections(output),
         });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');

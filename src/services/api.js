@@ -19,8 +19,5 @@ export const api = {
   generateProposal: (payload) => post('/generate-proposal', payload),
   generateEmail: (payload) => post('/generate-email', payload),
   generateIdeas: (payload) => post('/generate-ideas', payload),
-  generateImage: (payload) => post('/generate-image', payload),
-  generateVideoScript: (payload) => post('/generate-video-script', payload),
-  generateVideo: (payload) => post('/generate-video', payload),
   exportPdf: (payload) => post('/export-pdf', payload, true),
 };

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { generateImage, generateText } from '../services/geminiService.js';
+import { generateText } from '../services/geminiService.js';
 import { exportProposalPdf } from '../services/pdfService.js';
 
 const router = Router();
@@ -14,7 +14,28 @@ const handle = (fn) => async (req, res, next) => {
 
 router.post('/generate-proposal', handle(async (req, res) => {
   const { clientName, notes, offer, tone } = req.body;
-  const prompt = `Write a polished agency proposal for ${clientName}. Tone: ${tone || 'confident and clear'}. Offer: ${offer || 'digital growth support'}. Notes:\n${notes}`;
+  const prompt = `You are an agency strategist creating an internal-use proposal draft.
+
+Client name: ${clientName}
+Offer / service: ${offer || 'Digital growth support'}
+Tone: ${tone || 'confident and clear'}
+Discovery notes:
+${notes}
+
+Write a polished proposal with these exact section headings in this exact order:
+1) Client Summary
+2) Problem
+3) Solution
+4) Scope
+5) Timeline
+6) Pricing
+7) Next Steps
+
+Rules:
+- Keep it concise, practical, and implementation-ready.
+- Use markdown headings (## Heading).
+- Include specific assumptions where details are missing.
+- Do not include any extra sections before, between, or after the required sections.`;
   const content = await generateText(prompt, 'Proposal Draft');
   res.json({ content });
 }));
@@ -31,26 +52,6 @@ router.post('/generate-ideas', handle(async (req, res) => {
   const prompt = `Generate 10 actionable content ideas for niche: ${niche}. Channels: ${channels}. Goal: ${goal}. For each idea include hook + CTA.`;
   const content = await generateText(prompt, 'Ideas Draft');
   res.json({ content });
-}));
-
-router.post('/generate-image', handle(async (req, res) => {
-  const { prompt } = req.body;
-  const image = await generateImage(prompt);
-  res.json(image);
-}));
-
-router.post('/generate-video-script', handle(async (req, res) => {
-  const { objective, audience, product, lengthSeconds } = req.body;
-  const prompt = `Create a video script for ${product}. Audience: ${audience}. Objective: ${objective}. Duration: ${lengthSeconds || 45} seconds. Include scene directions and CTA.`;
-  const content = await generateText(prompt, 'Video Script');
-  res.json({ content });
-}));
-
-router.post('/generate-video', handle(async (_req, res) => {
-  res.status(501).json({
-    status: 'not_implemented',
-    message: 'Video generation endpoint scaffolded for future integration.',
-  });
 }));
 
 router.post('/export-pdf', handle(async (req, res) => {
