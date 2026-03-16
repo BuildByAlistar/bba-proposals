@@ -29,16 +29,3 @@ export async function generateText(prompt, title = 'Generated Draft') {
 
   return callGemini(prompt);
 }
-
-export async function generateImage(prompt) {
-  const content = await generateText(
-    `Create a social media image concept with style direction, composition, and caption idea. Prompt: ${prompt}`,
-    'Image Concept',
-  );
-
-  return {
-    mimeType: 'text/plain',
-    data: Buffer.from(content).toString('base64'),
-    isPlaceholder: true,
-  };
-}

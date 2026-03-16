@@ -28,8 +28,8 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Internal Mode" value="Private" delta="Only accessible to BuildByAlistar" />
-        <StatCard label="MVP Modules" value="5" delta="Dashboard + Proposal + Email + Ideas + PDF" />
-        <StatCard label="AI Provider" value="Gemini" delta="Text + image + video endpoints ready" />
+        <StatCard label="MVP Modules" value="6" delta="Dashboard + Proposal + Email + Ideas + Media + Video" />
+        <StatCard label="AI Provider" value="Gemini" delta="Text generation for core internal workflows" />
         <StatCard label="PDF Engine" value="Puppeteer" delta="Branded proposal export" />
       </section>
 
@@ -51,14 +51,14 @@ export default function DashboardPage() {
         </div>
       </Panel>
 
-      <Panel title="What ships now" subtitle="Stable MVP first. Advanced media features are scaffolded.">
+      <Panel title="What ships now" subtitle="Stable MVP first. Media and video are placeholders for now.">
         <ul className="space-y-2 text-sm text-slate-300">
           {[
             'Proposal generation endpoint + builder UI',
             'Email draft generation endpoint + UI',
             'Ideas generation endpoint + UI',
             'PDF export endpoint with Puppeteer',
-            'Image/video script/video endpoints scaffolded for expansion',
+            'Media Lab and Video pages reserved as placeholders',
           ].map((item) => (
             <li key={item} className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-violet-300" /> {item}

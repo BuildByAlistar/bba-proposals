@@ -13,6 +13,7 @@ import ProposalBuilderPage from './pages/modules/ProposalBuilderPage';
 import EmailGeneratorPage from './pages/modules/EmailGeneratorPage';
 import IdeasGeneratorPage from './pages/modules/IdeasGeneratorPage';
 import MediaLabPage from './pages/modules/MediaLabPage';
+import VideoPage from './pages/modules/VideoPage';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -32,7 +33,7 @@ export default function App() {
         <Route path="/email-generator" element={<EmailGeneratorPage />} />
         <Route path="/ideas-generator" element={<IdeasGeneratorPage />} />
         <Route path="/media-lab" element={<MediaLabPage />} />
-        <Route path="/video" element={<MediaLabPage />} />
+        <Route path="/video" element={<VideoPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppShell>
