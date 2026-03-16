@@ -1,5 +1,5 @@
 const express = require('express');
-const { generateText } = require('../gemini');
+const { generateProposal, generateEmail, generateIdeas } = require('../services/vertexAiService');
 
 const router = express.Router();
 
@@ -26,7 +26,7 @@ For each idea include:
 2. Why it works
 3. First step to execute`;
 
-    const ideas = await generateText(prompt);
+    const ideas = await generateIdeas({ industry, objective });
     return res.json({ ideas });
   } catch (error) {
     return res.status(500).json({

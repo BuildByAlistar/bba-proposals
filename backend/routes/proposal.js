@@ -1,5 +1,5 @@
 const express = require('express');
-const { generateText } = require('../gemini');
+const { generateProposal, generateEmail, generateIdeas } = require('../services/vertexAiService');
 
 const router = express.Router();
 
@@ -31,7 +31,7 @@ Return the proposal in markdown format with these sections:
 5. Budget Overview
 6. Next Steps`;
 
-    const proposal = await generateText(prompt);
+    const proposal = await generateProposal({ clientName, offer: projectName, tone: tone || 'Professional', clientNotes: `Goals: ${goals || 'Not provided'}\nScope: ${scope || 'Not provided'}\nTimeline: ${timeline || 'Not provided'}\nBudget: ${budget || 'Not provided'}` });
     return res.json({ proposal });
   } catch (error) {
     return res.status(500).json({

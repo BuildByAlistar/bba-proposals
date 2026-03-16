@@ -7,7 +7,6 @@ const getAdobeConfig = () => ({
   clientSecret: process.env.ADOBE_CLIENT_SECRET,
   orgId: process.env.ADOBE_ORG_ID,
   accountId: process.env.ADOBE_ACCOUNT_ID,
-  privateKey: process.env.ADOBE_PRIVATE_KEY,
   templatePath: process.env.ADOBE_PDF_TEMPLATE_PATH || './templates/proposal-template.docx',
 });
 
@@ -17,7 +16,6 @@ const ensureAdobeReady = (config) => {
     clientSecret: 'ADOBE_CLIENT_SECRET',
     orgId: 'ADOBE_ORG_ID',
     accountId: 'ADOBE_ACCOUNT_ID',
-    privateKey: 'ADOBE_PRIVATE_KEY',
   };
 
   const missing = Object.entries(envMap)

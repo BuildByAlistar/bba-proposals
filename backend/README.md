@@ -1,160 +1,81 @@
 # Agency OS Backend
 
-Production-style Node.js + Express backend for 3 core features:
-1. Gemini text generation
-2. Adobe document-generation-based proposal PDF export
-3. Gemini image concept + image endpoint scaffold
+Node.js + Express backend for:
+1. Vertex AI text generation
+2. Vertex AI image concept/image generation
+3. Adobe document-generation proposal PDF export
 
-## Folder structure
-
-```txt
-backend/
-  server.js
-  package.json
-  .env.example
-  routes/
-  services/
-  templates/
-  utils/
-```
-
-## 1) Install
+## Local setup
 
 ```bash
 cd backend
 npm install
-```
-
-## 2) Environment setup
-
-Copy `.env.example` to `.env` and fill values:
-
-```bash
 cp .env.example .env
 ```
 
-Required variables:
+Use this `.env` (already provisioned in this repo):
 
 ```env
 PORT=5000
-GEMINI_API_KEY=
-GEMINI_TEXT_MODEL=gemini-2.0-flash
-GEMINI_IMAGE_MODEL=gemini-2.0-flash-preview-image-generation
+GOOGLE_CLOUD_PROJECT=buildbystar-a109d
+GOOGLE_CLOUD_LOCATION=global
+GOOGLE_APPLICATION_CREDENTIALS=./vertex-key.json
+VERTEX_TEXT_MODEL=gemini-2.5-flash
+VERTEX_IMAGE_MODEL=gemini-2.5-flash-image
 ADOBE_CLIENT_ID=
 ADOBE_CLIENT_SECRET=
 ADOBE_ORG_ID=
 ADOBE_ACCOUNT_ID=
-ADOBE_PRIVATE_KEY=
 ADOBE_PDF_TEMPLATE_PATH=./templates/proposal-template.docx
 ```
 
-## 3) Run
+> `GOOGLE_APPLICATION_CREDENTIALS` points to `./vertex-key.json` in `backend/`.
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-npm start
+cd backend
+node server.js
 ```
 
-Default server URL: `http://localhost:5000`
+Server runs at: `http://localhost:5000`
 
-## 4) API endpoints
+Startup logs show:
+- Vertex text model
+- Vertex image model
 
-### Health
-- `GET /health` → `{ "status": "ok" }`
+## API endpoints
 
-### Gemini text generation
+- `GET /health`
 - `POST /generate-proposal`
 - `POST /generate-email`
 - `POST /generate-ideas`
+- `POST /generate-image-concept`
+- `POST /generate-image`
+- `POST /export-proposal-pdf`
 
-Example:
+## Curl test examples
+
+Health check:
 
 ```bash
-curl -X POST http://localhost:5000/generate-ideas \
+curl -s http://localhost:5000/health
+```
+
+Generate ideas (Vertex AI):
+
+```bash
+curl -s -X POST http://localhost:5000/generate-ideas \
   -H 'Content-Type: application/json' \
   -d '{"industry":"real estate","objective":"generate local seller leads"}'
 ```
 
-### Gemini image
-- `POST /generate-image-concept`
-- `POST /generate-image`
+## Adobe PDF notes
 
-If runtime/model does not support direct image binary output yet, `/generate-image` returns a safe `not_configured` response instead of crashing.
-
-### Adobe PDF export (DOCX template merge)
-- `POST /export-proposal-pdf`
-
-Example:
-
-```bash
-curl -X POST http://localhost:5000/export-proposal-pdf \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "clientName":"Acme Inc",
-    "offer":"Lead Generation Retainer",
-    "tone":"consultative",
-    "proposalText":"High-level proposal text",
-    "sections":{
-      "executiveSummary":"Summary",
-      "problem":"Problem",
-      "solution":"Solution",
-      "scope":"Scope",
-      "timeline":"Timeline",
-      "pricing":"Pricing",
-      "nextSteps":"Next steps"
-    }
-  }' --output proposal.pdf
-```
-
-## Adobe credentials setup
-
-Use Adobe PDF Services credentials in `.env`:
+Set Adobe credentials in `.env`:
 - `ADOBE_CLIENT_ID`
 - `ADOBE_CLIENT_SECRET`
 - `ADOBE_ORG_ID`
 - `ADOBE_ACCOUNT_ID`
-- `ADOBE_PRIVATE_KEY` (single line or `\n` escaped multiline key)
 
-## DOCX template placement
-
-Place your Adobe merge template at:
-- `backend/templates/proposal-template.docx`
-
-or change `ADOBE_PDF_TEMPLATE_PATH`.
-
-## Template tag mapping reference (sample)
-
-Use tags in DOCX such as:
-- `{{clientName}}`
-- `{{offer}}`
-- `{{tone}}`
-- `{{proposalText}}`
-- `{{sections.executiveSummary}}`
-- `{{sections.problem}}`
-- `{{sections.solution}}`
-- `{{sections.scope}}`
-- `{{sections.timeline}}`
-- `{{sections.pricing}}`
-- `{{sections.nextSteps}}`
-
-### Sample JSON merge data shape
-
-```json
-{
-  "generatedAt": "2026-03-16T00:00:00.000Z",
-  "clientName": "Acme Inc",
-  "offer": "Lead Generation Retainer",
-  "tone": "consultative",
-  "proposalText": "High-level proposal text",
-  "sections": {
-    "executiveSummary": "Summary",
-    "problem": "Problem",
-    "solution": "Solution",
-    "scope": "Scope",
-    "timeline": "Timeline",
-    "pricing": "Pricing",
-    "nextSteps": "Next steps"
-  }
-}
-```
+Place the DOCX template at `backend/templates/proposal-template.docx` (or override `ADOBE_PDF_TEMPLATE_PATH`).

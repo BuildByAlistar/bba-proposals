@@ -1,5 +1,5 @@
 const express = require('express');
-const { generateText } = require('../gemini');
+const { generateProposal, generateEmail, generateIdeas } = require('../services/vertexAiService');
 
 const router = express.Router();
 
@@ -24,7 +24,7 @@ Return:
 - Subject line
 - Email body`;
 
-    const email = await generateText(prompt);
+    const email = await generateEmail({ objective: purpose, audience: `${recipientName || 'there'} at ${companyName || 'their company'}`, tone: tone || 'Professional and friendly', context: `${context || 'No additional context provided'}\nCall to Action: ${callToAction || 'Suggest a short intro call'}` });
     return res.json({ email });
   } catch (error) {
     return res.status(500).json({
