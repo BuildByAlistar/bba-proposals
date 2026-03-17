@@ -71,12 +71,14 @@ export default function ProposalBuilderPage() {
           clientName: values.clientName,
           ...parseProposalSections(output),
         });
-        const url = URL.createObjectURL(blob);
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
         link.download = `${values.clientName || 'proposal'}.pdf`;
+        document.body.appendChild(link);
         link.click();
-        URL.revokeObjectURL(url);
+        link.remove();
+        window.URL.revokeObjectURL(url);
       }}
       className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-60"
     >
