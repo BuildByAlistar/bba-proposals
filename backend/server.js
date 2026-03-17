@@ -133,36 +133,14 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, imageResult);
     }
 
-    if (req.method === 'POST' && req.url === '/export-proposal-pdf') {
+    if (req.method === 'POST' && req.url === '/export-pdf') {
       const body = await parseBody(req);
-      requireFields(body, ['clientName', 'offer', 'tone', 'proposalText']);
-      const sections = body.sections;
-      const requiredSectionKeys = [
-        'executiveSummary',
-        'problem',
-        'solution',
-        'scope',
-        'timeline',
-        'pricing',
-        'nextSteps',
-      ];
-
-      if (!sections || typeof sections !== 'object') {
-        throw new HttpError(400, 'sections object is required.');
-      }
-
-      const missingSections = requiredSectionKeys.filter(
-        (key) => typeof sections[key] !== 'string' || sections[key].trim() === ''
-      );
-
-      if (missingSections.length > 0) {
-        throw new HttpError(400, `Missing required section fields: ${missingSections.join(', ')}`);
-      }
+      requireFields(body, ['title', 'clientName']);
 
       const pdfBuffer = await generateProposalPdf(body);
       res.writeHead(200, {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${body.clientName || 'proposal'}-proposal.pdf"`,
+        'Content-Disposition': 'attachment; filename="proposal.pdf"',
         'Access-Control-Allow-Origin': '*',
       });
       return res.end(pdfBuffer);
